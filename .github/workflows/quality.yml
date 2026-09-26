@@ -1,0 +1,61 @@
+name: MEND UK Quality Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Validate application source is present
+        run: |
+          test -f package.json
+          test -d app
+          test -d components
+          test -d lib
+          test -d supabase/functions
+          test -d supabase/migrations
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test -- --runInBand
+
+      - name: Environment contract check
+        run: node scripts/check-env.mjs
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          EXPO_PUBLIC_STRIPE_MERCHANT_IDENTIFIER: merchant.uk.mend.app
+
+      - name: Secret scan
+        run: |
+          if grep -RInE 'sk_live_|sk_test_[A-Za-z0-9]{20,}|service_role|SUPABASE_SERVICE_ROLE_KEY=[^$]' app components lib 2>/dev/null; then
+            echo 'Potential client-side secret detected.'
+            exit 1
+          fi
+
+      - name: Production source guard
+        run: |
+          if grep -RInE 'coming soon|not implemented|PLACEHOLDER' app components lib 2>/dev/null; then
+            echo 'Unresolved production placeholder detected in client source.'
+            exit 1
+          fi

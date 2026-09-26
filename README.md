@@ -1,70 +1,62 @@
-# MEND UK — Phase 7
+# MEND UK
 
-Booking & Scheduling layer built on Phase 6.
+MEND UK is a mobile-first UK home-repair platform connecting customers, tenants, landlords, property managers and verified tradespeople through repair discovery, quoting, scheduling, Stripe payments, Job Passport records, warranties, disputes and operational tooling.
 
-Includes appointment request/confirmation/cancellation, availability validation, double-booking protection, customer booking UI, and repair scheduling integration.
+## Stack
+- Expo / React Native for iOS and Android
+- Supabase / PostgreSQL / RLS / Edge Functions
+- Stripe PaymentSheet + Stripe Connect
+- Server-authoritative payment and workflow state
 
-Run `npm install` then `npx expo start` after configuring Supabase. Apply migrations in order through the Supabase migration workflow.
+## Production builder workflow
+This project follows the updated Full-Stack Production App Builder workflow:
 
+**Build → Test → Verify → Fix → Lock → Move to next phase**
 
-## Phase 8 — Messaging & Notifications
-Repair conversations, realtime message updates, read receipts, notification inbox, preferences, device registry, and server-created notification events are implemented. See `docs/PHASE_8.md`.
+A phase is not considered complete because a screen renders. The corresponding UI, API, database, auth/authz, integration, error/recovery, accessibility, performance, security and verification evidence must pass before the phase is locked.
 
-## Phase 9 — Payments
-Provider-backed GBP repair payments now use the accepted quote as the server-authoritative amount. Stripe PaymentIntent creation, signed webhook verification, payment audit transactions, idempotency and protected/failed states are implemented. Native payment collection remains a provider UI integration boundary and is not represented as successful by a client button.
+See:
+- `PROJECT_STATE.md`
+- `AGENT_HANDOFF.md`
+- `DEVICE_TEST_MATRIX.md`
+- `docs/PRODUCTION_GATES.md`
+- `docs/FINAL_DEBUG_AUDIT_V2.md`
 
+## Core product areas
+- Customer repair creation and tracking
+- AI-assisted repair triage
+- Home Passport and property records
+- Trade marketplace and quote requests
+- Trade verification
+- Booking and scheduling
+- Stripe PaymentSheet on iOS/Android
+- Stripe Connect trade onboarding and transfers
+- Messaging and notifications
+- Completion evidence and Job Passport
+- Warranty and disputes
+- Tenant, landlord and property-manager workspaces
+- Trade Pro and staff access
+- Marketplace/materials foundation
+- Support and trust/safety
+- Offline action queue foundation
+- Accessibility, performance and observability foundations
+- Light/dark/system appearance modes
+- UK-focused branding and mobile UX
 
-## Phase 10 — Repair Completion & Job Passport
-- Completion evidence and server-side completion workflow
-- Customer confirmation and warranty creation
-- Consolidated Job Passport retrieval
-- Immutable completion evidence
+## Development
+Install dependencies in a network-enabled environment, configure the appropriate `.env.*.example` values, then run:
 
-## Phase 11 — Warranty & Disputes
-Warranty claims, repair disputes, evidence protection, and authorised resolution workflows are included. See `docs/PHASE_11.md`.
+```bash
+npm install
+npm run typecheck
+npm test
+npx expo start
+```
 
-## Phase 12 — Tenant Experience
-Tenant property access, access requests, tenant dashboard, tenant repair visibility and tenant repair creation permissions are included. Responsibility language remains informational rather than a legal liability determination.
+Apply Supabase migrations in order through the normal Supabase migration workflow. Never commit real secrets.
 
+## Source status
+The complete debugged application exists as the prepared local release package used during the source-level audit. The connected GitHub repository currently contains the project configuration, test scaffolding, workflow gates and documentation. The full application source tree still needs to be transferred as a complete repository commit before GitHub Actions can validate the entire mobile/backend tree.
 
-## Phase 13 — Landlord Experience
-
-Added a mobile-first landlord workspace with property portfolio oversight, tenant/access-request review, property-scoped repair oversight, landlord repair authorisation, quote/appointment/payment visibility, and warranty/dispute visibility. Server-side RLS/RPC controls remain authoritative; payment execution is not performed by the landlord UI.
-
-Migration: `014_phase13_landlord_experience.sql`.
-
-
-## Phase 14 — Property Manager / MEND Pro
-Added property-scoped manager assignments, secure email-bound invites, MEND Pro portfolio dashboard, managed property/repair views, and RLS-backed operational visibility.
-
-
-## Phase 15 — Tradesperson Pro
-Added trade job inbox, team/staff invites, staff-scoped access and Job Passport operational views.
-
-## Phase 17 — Fraud, Trust & Safety
-Safety Centre, safety reports, risk signals, admin triage, auditable enforcement actions and account restriction controls are included in `docs/PHASE_17.md` and migration `017_phase17_fraud_trust_safety.sql`.
-
-## Phase 18 — Notifications & Communications Infrastructure
-Adds preference-aware communications, durable delivery records, device registration, reminder generation, retry/dead-letter foundations, communication audit events and a provider-neutral server delivery boundary. See `docs/PHASE_18.md`.
-
-
-## Phase 19 — Analytics
-Privacy-conscious operational analytics, admin KPI reporting, and daily aggregate snapshots are included in `docs/PHASE_19.md`.
-
-## Consolidated Release Candidate — Phases 20–24
-The release candidate adds MEND Intelligence, marketplace foundations, production hardening, beta feedback/feature flags, and production launch controls. See `docs/DEBUG_AUDIT.md` and `docs/PRODUCTION_STATUS.md` for the latest audit and remaining launch gates.
-
-## Stripe payments
-
-The mobile app uses Stripe PaymentSheet on iOS and Android. Customer repair payments are created server-side from the accepted quote; Stripe Connect Express is used for trade payout onboarding, and MEND uses Separate Charges and Transfers so customer confirmation remains the release boundary. See `docs/STRIPE_PAYMENTS.md` for setup and launch requirements.
-
-## Final Feature Pack
-
-The current release includes the final in-app feature pack: saved trades, recurring maintenance, customer support tickets, privacy/data controls, trade earnings/payout centre, production operations checklist, offline action queue foundation and compliance consent records. See `docs/FINAL_FEATURE_PACK.md`.
-
-### Production validation still required
-
-Live Supabase/RLS validation, Stripe live configuration (including Apple Pay/Google Pay and Connect), notification providers, AI provider, physical Android/iOS testing, E2E/regression/security/accessibility testing, app-store submission and UK legal/GDPR review remain release gates.
-
-## Final Production Hardening
-See `docs/FINAL_PRODUCTION_HARDENING.md` and `docs/REAL_ENVIRONMENT_SETUP.md` for the final environment, verification, compliance, Job Passport, offline, accessibility, performance and observability work.
+## Production gates
+Do not label MEND UK production-ready until applicable gates pass for real staging/production environments: dependency install/lockfile, typecheck/lint/tests, Supabase migrations and RLS, Stripe payments/webhooks/Connect, notification providers, AI provider, physical iOS/Android builds, E2E, accessibility, performance, security, observability, backup/restore, app-store review and UK privacy/legal review.

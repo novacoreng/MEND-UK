@@ -33,7 +33,10 @@
       "package": "com.mend.uk"
     },
     "extra": {
-      "environment": "production"
+      "environment": "production",
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
     },
     "runtimeVersion": "1.0.0",
     "icon": "./assets/mend-uk-icon.png",

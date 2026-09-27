@@ -1,0 +1,18 @@
+import { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, Card, Chip, Input, Screen } from '@/components/UI';
+import { theme } from '@/constants/theme';
+import { listSafetyQueue, listRiskSignals, resolveSafetyReport, setUserSafetyRestriction } from '@/lib/api';
+
+export default function AdminSafety(){
+ const [reports,setReports]=useState<any[]>([]); const [signals,setSignals]=useState<any[]>([]); const [note,setNote]=useState(''); const [loading,setLoading]=useState(false);
+ const load=async()=>{try{const [r,s]=await Promise.all([listSafetyQueue(),listRiskSignals()]);setReports(r);setSignals(s)}catch(e){Alert.alert('Safety queue unavailable',e instanceof Error?e.message:'Admin access may be required.')}};
+ useEffect(()=>{load()},[]);
+ const update=async(id:string,status:'investigating'|'resolved')=>{setLoading(true);try{await resolveSafetyReport(id,status,undefined,note);setNote('');await load()}catch(e){Alert.alert('Action failed',e instanceof Error?e.message:'Please try again.')}finally{setLoading(false)}};
+ const restrict=async(userId:string)=>{setLoading(true);try{await setUserSafetyRestriction(userId,'account',true,'Admin trust & safety action');await load();Alert.alert('Restriction applied','The action has been recorded in the safety audit trail.')}catch(e){Alert.alert('Restriction failed',e instanceof Error?e.message:'Please try again.')}finally{setLoading(false)}};
+ return <Screen><ScrollView contentContainerStyle={s.page}><Text style={s.kicker}>MEND OPERATIONS</Text><Text style={s.h}>Trust & Safety</Text><Text style={s.sub}>Review reports and risk signals. Every enforcement action is server-authorised and audit logged.</Text>
+ <Card><Text style={s.title}>Open reports · {reports.filter(r=>!['resolved','dismissed'].includes(r.status)).length}</Text><Input label="Optional admin note" value={note} onChangeText={setNote} placeholder="Internal case note"/>{reports.slice(0,30).map(r=><View key={r.id} style={s.case}><View><Text style={s.item}>{r.category.replaceAll('_',' ')}</Text><Text style={s.meta}>{r.description}</Text><Text style={s.meta}>{r.reported?.email||'No reported account'} · {new Date(r.created_at).toLocaleString('en-GB')}</Text></View><View style={s.actions}><Chip label={r.priority}/><Button title="Investigate" variant="secondary" disabled={loading} onPress={()=>update(r.id,'investigating')}/>{r.reported_user_id&&<Button title="Restrict account" variant="ghost" disabled={loading} onPress={()=>restrict(r.reported_user_id)}/>}<Button title="Resolve" variant="ghost" disabled={loading} onPress={()=>update(r.id,'resolved')}/></View></View>)}</Card>
+ <Card><Text style={s.title}>Risk signals · {signals.length}</Text>{signals.slice(0,20).map(x=><View key={x.id} style={s.row}><View style={{flex:1}}><Text style={s.item}>{x.signal_type.replaceAll('_',' ')}</Text><Text style={s.meta}>Score {x.score} · {x.status}</Text></View><Chip label={x.severity}/></View>)}</Card>
+ </ScrollView></Screen>
+}
+const s=StyleSheet.create({page:{padding:20,paddingTop:40,gap:14,paddingBottom:50},kicker:{fontSize:11,fontWeight:'900',letterSpacing:1.5,color:theme.colors.muted},h:{fontSize:32,fontWeight:'900'},sub:{fontSize:15,lineHeight:22,color:theme.colors.muted},title:{fontSize:18,fontWeight:'900',marginBottom:8},case:{paddingVertical:14,borderTopWidth:1,borderTopColor:theme.colors.line,gap:9},item:{fontSize:15,fontWeight:'900',textTransform:'capitalize'},meta:{fontSize:12,lineHeight:18,color:theme.colors.muted},actions:{gap:7},row:{flexDirection:'row',alignItems:'center',paddingVertical:12,borderTopWidth:1,borderTopColor:theme.colors.line}});

@@ -1,0 +1,5 @@
+import React,{useEffect,useState} from 'react';
+import {Text,View,ScrollView} from 'react-native';
+import {Screen,Card,Status} from '../../components/UI';
+import {supabase} from '../../lib/supabase';
+export default function Intelligence(){const [rows,setRows]=useState<any[]>([]);const [busy,setBusy]=useState(false);const load=async()=>{try{setBusy(true);await generateMendIntelligence();setRows(await listMendIntelligence());}catch(e){}finally{setBusy(false)}};useEffect(()=>{void load()},[]); return <Screen title="MEND Intelligence"><ScrollView><Button title={busy?"Refreshing…":"Refresh intelligence"} loading={busy} disabled={busy} onPress={()=>void load()}/>{rows.length===0?<Card><Text>No intelligence signals yet. Signals appear as MEND learns from your repair history.</Text></Card>:rows.map(x=><Card key={x.id}><Text style={{fontWeight:'700',fontSize:16}}>{x.title}</Text><Text style={{marginTop:6}}>{x.explanation}</Text><View style={{marginTop:10}}><Status label={`${x.severity} • ${x.confidence==null?'confidence unavailable':Math.round(x.confidence*100)+'% confidence'}`} /></View></Card>)}</ScrollView></Screen>}

@@ -1,0 +1,1 @@
+Shared Edge Function utilities live here. Keep privileged provider keys and server-only operations inside Edge Functions; never bundle them into the Expo application.

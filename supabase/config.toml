@@ -1,0 +1,70 @@
+project_id = "mend-uk"
+
+[functions.mend-triage]
+verify_jwt = true
+
+[functions.transition-repair-status]
+verify_jwt = true
+
+[functions.accept-quote]
+verify_jwt = true
+
+[functions.create-appointment]
+verify_jwt = true
+
+[functions.send-message]
+verify_jwt = true
+
+[functions.register-trade]
+verify_jwt = true
+
+[functions.create-payment-intent]
+verify_jwt = true
+
+[functions.complete-repair]
+verify_jwt = true
+
+[functions.payment-webhook]
+verify_jwt = false
+
+[functions.create-quote]
+verify_jwt = true
+
+[functions.request-change-order]
+verify_jwt = true
+
+[functions.open-dispute]
+verify_jwt = true
+
+[functions.open-warranty-claim]
+verify_jwt = true
+
+[functions.process-notification-deliveries]
+verify_jwt = false
+
+[functions.create-stripe-connect-account]
+verify_jwt = true
+
+[functions.create-stripe-connect-link]
+verify_jwt = true
+
+[functions.release-repair-payment]
+verify_jwt = true
+
+[functions.refund-repair-payment]
+verify_jwt = true
+
+[functions.book-appointment]
+verify_jwt = true
+
+[functions.cancel-appointment]
+verify_jwt = true
+
+[functions.respond-appointment]
+verify_jwt = true
+
+[functions.update-trade-availability]
+verify_jwt = true
+
+[functions.upsert-trade-services]
+verify_jwt = true

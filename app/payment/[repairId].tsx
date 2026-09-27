@@ -1,0 +1,23 @@
+import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { useStripe } from '@stripe/stripe-react-native';
+import { Button, Card, Status } from '@/components/UI';
+import { theme } from '@/constants/theme';
+import { getRepairQuotes, getRepairPayments, createRepairPaymentIntent } from '@/lib/api';
+
+export default function Payment() {
+  const { repairId } = useLocalSearchParams<{repairId:string}>();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [quote,setQuote]=useState<any>(null);
+  const [payment,setPayment]=useState<any>(null);
+  const [loading,setLoading]=useState(true);
+  const [starting,setStarting]=useState(false);
+
+  const load=async()=>{ if(!repairId)return; const [quotes,payments]=await Promise.all([getRepairQuotes(repairId),getRepairPayments(repairId)]); setQuote(quotes.find((q:any)=>q.status==='accepted')??null); setPayment(payments[0]??null); };
+  useEffect(()=>{if(!repairId)return;load().catch(e=>Alert.alert('Unable to load payment',e instanceof Error?e.message:'Please try again.')).finally(()=>setLoading(false));},[repairId]);
+  const start=async()=>{if(!repairId)return;setStarting(true);try{const result=await createRepairPaymentIntent(repairId);const {error:initError}=await initPaymentSheet({merchantDisplayName:'MEND UK',paymentIntentClientSecret:result.clientSecret,allowsDelayedPaymentMethods:false,applePay:{merchantCountryCode:'GB'},googlePay:{merchantCountryCode:'GB',testEnv:process.env.EXPO_PUBLIC_STRIPE_TEST_MODE==='true'}});if(initError)throw new Error(initError.message);const {error:presentError}=await presentPaymentSheet();if(presentError){if(presentError.code!=='Canceled')throw new Error(presentError.message);return;}setPayment({id:result.paymentId,status:'pending',amount:result.amountPence/100});Alert.alert('Payment submitted','Stripe has accepted the payment flow. MEND will update the Job Passport after the signed Stripe webhook confirms the payment.');await new Promise(resolve=>setTimeout(resolve,1200));await load();}catch(e){Alert.alert('Payment could not start',e instanceof Error?e.message:'Please try again.')}finally{setStarting(false)}};
+  if(loading)return <View style={s.load}><ActivityIndicator/><Text>Loading payment…</Text></View>;
+  return <View style={s.page}><Text style={s.kicker}>SECURE REPAIR PAYMENT</Text><Text style={s.h}>Pay for your repair</Text><Text style={s.sub}>MEND calculates the amount from the accepted quote. Card details are collected by Stripe's native payment sheet, not by MEND.</Text>{!quote?<Card><Text style={s.title}>No accepted quote</Text><Text style={s.note}>An accepted quote is required before MEND can create a repair payment.</Text></Card>:<><Card><Text style={s.label}>AGREED TOTAL</Text><Text style={s.amount}>£{Number(quote.total).toFixed(2)}</Text><Text style={s.note}>Quote v{quote.version}. Currency: GBP. Apple Pay and Google Pay availability depends on the device, account and Stripe configuration.</Text></Card>{payment&&<Card><View style={s.row}><Text style={s.title}>Payment status</Text><Status text={String(payment.status).replaceAll('_',' ')} type={payment.status==='protected'||payment.status==='released'?'success':payment.status==='failed'?'danger':'warning'}/></View></Card>}<Button title={payment?.status==='protected'||payment?.status==='released'?'Payment protected':'Continue to secure payment'} loading={starting} disabled={starting||['protected','released'].includes(payment?.status)} onPress={start}/></>}<Button title="Back to repair" variant="ghost" onPress={()=>router.push({pathname:'/repair/[id]',params:{id:repairId}})}/></View>;
+}
+const s=StyleSheet.create({page:{flex:1,padding:22,paddingTop:72,backgroundColor:theme.colors.bg,gap:18},load:{flex:1,alignItems:'center',justifyContent:'center',gap:10,backgroundColor:theme.colors.bg},kicker:{fontSize:11,fontWeight:'900',letterSpacing:1.5,color:theme.colors.muted},h:{fontSize:34,fontWeight:'900'},sub:{fontSize:16,lineHeight:24,color:theme.colors.muted},label:{fontSize:10,fontWeight:'900',letterSpacing:1.3,color:theme.colors.muted},amount:{fontSize:36,fontWeight:'900',marginTop:8,color:theme.colors.primary},title:{fontSize:16,fontWeight:'900'},note:{fontSize:12,lineHeight:18,color:theme.colors.muted,marginTop:8},row:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}});

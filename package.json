@@ -12,7 +12,10 @@
     "lint": "expo lint",
     "test": "jest --runInBand",
     "check:env": "node scripts/check-env.mjs",
-    "prebuild": "npm run check:env"
+    "validate": "node scripts/validate-project.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "preflight": "node scripts/preflight.mjs",
+    "prebuild": "npm run check:env && npm run preflight"
   },
   "dependencies": {
     "@expo/vector-icons": "15.0.0",

@@ -10,19 +10,29 @@
     "expo-router",
     "expo-secure-store",
     "expo-image-picker",
-    ["@stripe/stripe-react-native", {"merchantIdentifier": "merchant.uk.mend.app", "enableGooglePay": true}]
+    [
+      "@stripe/stripe-react-native",
+      {
+        "merchantIdentifier": "merchant.uk.mend.app",
+        "enableGooglePay": true
+      }
+    ]
   ],
   "ios": {
     "supportsTablet": true,
     "bundleIdentifier": "uk.mend.app",
     "infoPlist": {
       "CFBundleAllowMixedLocalizations": true,
-      "CFBundleLocalizations": ["en-GB"]
+      "CFBundleLocalizations": [
+        "en-GB"
+      ]
     }
   },
   "android": {
     "package": "com.mend.uk",
-    "permissions": ["android.permission.RECORD_AUDIO"]
+    "permissions": [
+      "android.permission.RECORD_AUDIO"
+    ]
   },
   "web": {
     "bundler": "metro",
@@ -35,10 +45,14 @@
   "runtimeVersion": "1.0.0",
   "icon": "./assets/mend-uk-icon.png",
   "splash": {
-    "image": "./assets/mend-uk-logo.png",
+    "image": "./assets/mend-uk-icon.png",
     "resizeMode": "contain",
     "backgroundColor": "#FFFFFF"
   },
   "sdkVersion": "57.0.0",
-  "platforms": ["ios", "android", "web"]
+  "platforms": [
+    "ios",
+    "android",
+    "web"
+  ]
 }

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { useStripe } from '@stripe/stripe-react-native';
+import { useStripe } from '@/lib/stripe';
 import { Button, Card, Status } from '@/components/UI';
 import { theme } from '@/constants/theme';
 import { getRepairQuotes, getRepairPayments, createRepairPaymentIntent } from '@/lib/api';
